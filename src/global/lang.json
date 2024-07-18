@@ -1,0 +1,213 @@
+{
+  "fr": {
+    "title": "Français",
+    "time_format": 24,
+    "data": {
+      "login": {
+        "id_label": "Identifiant",
+        "password_label": "Mot de passe",
+        "confirm_button": "Connexion",
+        "error_message": "Identifiants incorrectes"
+      },
+      "global": {
+        "back_button_label": "Retour",
+        "error_message": "Une erreur est survenue",
+        "plan_expire_before": "Il vous reste",
+        "plan_expire_after": "jours d'abonnemaaent, pensez y !!!!",
+        "lost_connexion": "Vérifiez votre connexion internet",
+        "time_next_episode_label" : "Il vous reste",
+        "announcement": "blabla"
+      },
+      "menu": {
+        "home": "Accueil",
+        "tv": "TV",
+        "movies": "Films",
+        "series": "Séries",
+        "settings": "Paramètres",
+        "affiliate": "Invitez"
+      },
+      "home": {
+        "section1": "Chaînes les plus regardées",
+        "section2": "Films tendance",
+        "section3": "Séries tendance",
+        "channels_history_title": "Chaînes récemment visionnées",
+        "resume_title": "Reprendre la lecture",
+        "channels_favorite_title": "Chaînes favorites",
+        "movies_favorite_title": "Films favoris",
+        "series_favorite_title": "Séries favorites"
+      },
+      "tv": {
+        "search_placeholder": "Rechercher une chaîne",
+        "search_results_title": "Résultats pour",
+        "next_epg_label": "À suivre",
+        "help_add_favorite": "Maintenez appuyé pour ajouter la chaîne à vos favoris",
+        "help_remove_favorite": "Maintenez appuyé pour supprimer la chaîne de vos favoris",
+        "help_favorite_mobile": "Maintenez appuyé pour ajouter la chaîne à vos favoris"
+      },
+      "movies": {
+        "search_placeholder": "Rechercher un film",
+        "search_results_title": "Résultats pour"
+      },
+      "series": {
+        "search_placeholder": "Rechercher une série",
+        "search_results_title": "Résultats pour"
+      },
+      "details": {
+        "minutes_short_label": "min",
+        "timeleft_first_label": "Il reste",
+        "timeleft_last_label": "minutes",
+        "play_label": "Lecture",
+        "display_episodes_label": "Afficher les épisodes",
+        "play_resume_label": "Reprendre la lecture",
+        "play_back_label": "Reprendre depuis le début",
+        "favorite_label": "Ajouter aux favoris",
+        "delete_favorite_label": "Supprimer des favoris",
+        "expand_description_label": "Afficher le résumé",
+        "trailer_label": "Regarder la bande-annonce",
+
+        "season_label": "saison",
+        "seasons_label": "saisons",
+        "season_short_label": "S",
+        "episode_label": "épisode",
+        "episodes_label": "épisodes",
+        "episode_short_label": "E"
+      },
+      "settings": {
+        "first_title": "À propos de votre abonnement",
+        "second_title": "Affichage",
+        "third_title": "Gestion des données",
+        "username_label": "Identifiant",
+        "exp_label": "Expire dans",
+        "max_con_label": "Nombre maximum de connexions simultanées",
+        "nbr_con_label": "Nombre de connexions actives",
+        "lang_label": "Langue",
+        "history_button": "Supprimer l'historique des chaînes",
+        "movies_button": "Réinitialiser la progression des films",
+        "series_button": "Réinitialiser la progression des séries",
+        "favorites_button": "Supprimer les favoris",
+        "logout_button": "Se déconnecter",
+        "confirm_label": "Êtes-vous sur ?",
+        "yes_label": "oui",
+        "no_label": "non",
+
+        "day_label": "jour",
+        "days_label": "jours",
+        "hour_label": "heure",
+        "hours_label": "heures",
+        "minute_label": "minute",
+        "minutes_label": "minutes",
+        "second_label": "seconde",
+        "seconds_label": "secondes"
+      },
+      "earn": {
+        "title": "Faîtes profiter vos proches de -30% sur leur abonnement",
+        "subtitle": "Gagnez des récompenses sur chaque invitation",
+        "share_label": "Partagez",
+        "or_label": "ou",
+        "code_label": "Code de réduction",
+        "qrcode_label": "QRCode de réduction",
+        "link_rewards": "Pour voir et utiliser vos récompenses, rendez-vous sur myiptv.com/aff"
+      },
+      "exit": {
+        "title": "Quitter myIPTV ?",
+        "back_label": "Retour",
+        "confirm_label": "Quitter l'app"
+      }
+    }
+  },
+  "en": {
+    "title": "English",
+    "time_format": 12,
+    "data": {
+      "global": {
+        "back_button_label": "Retour anglais",
+        "error_message": "Une erreur est survenue"
+      },
+      "menu": {
+        "home": "Accueil anglais",
+        "tv": "TV anglais",
+        "movies": "Films anglais",
+        "series": "Séries anglais",
+        "settings": "Paramètres a",
+        "affiliate": "Affiliation anglais"
+      },
+      "home": {
+        "channels_history_title": "Chaînes récemment visionnées anglais",
+        "resume_title": "Reprendre la lecture anglais",
+        "channels_favorite_title": "Chaînes favorites anglais",
+        "movies_favorite_title": "Films favoris anglais",
+        "series_favorite_title": "Séries favorites anglais"
+      },
+      "tv": {
+        "search_placeholder": "Rechercher une chaîne en",
+        "search_results_title": "Résultats pour en",
+        "next_epg_label": "À suivre en",
+        "help_add_favorite": "Maintenez appuyé pour ajouter la chaîne à vos favoris en",
+        "help_remove_favorite": "Maintenez appuyé pour supprimer la chaîne de vos favoris en"
+      },
+      "movies": {
+        "search_placeholder": "Rechercher un film anglais",
+        "search_results_title": "Résultats pour anglais"
+      },
+      "series": {
+        "search_placeholder": "Rechercher une série anglais",
+        "search_results_title": "Résultats pour anglais"
+      },
+      "details": {
+        "minutes_short_label": "min anglais",
+        "timeleft_first_label": "Il reste anglais",
+        "timeleft_last_label": "minutes anglais",
+        "play_label": "Lecture anglais",
+        "display_episodes_label": "Afficher les épisodes anglais",
+        "play_resume_label": "Reprendre la lecture anglais",
+        "play_back_label": "Reprendre depuis le début anglais",
+        "favorite_label": "Ajouter aux favoris anglais",
+        "delete_favorite_label": "Supprimer des favoris anglais",
+        "expand_description_label": "Afficher le résumé anglais",
+        "trailer_label": "Regarder la bande-annonce anglais",
+
+        "season_label": "saison anglais",
+        "seasons_label": "saisons anglais",
+        "season_short_label": "S anglais",
+        "episode_label": "épisode anglais",
+        "episodes_label": "épisodes anglais",
+        "episode_short_label": "E anglais"
+      },
+
+      "settings": {
+        "first_title": "À propos de votre abonnement anglais",
+        "second_title": "Affichage anglais",
+        "third_title": "Gestion des données anglais",
+        "username_label": "Identifiant anglais",
+        "exp_label": "Expire dans anglais",
+        "max_con_label": "Nombre maximum de connexions simultanées anglais",
+        "nbr_con_label": "Nombre de connexions actives anglais",
+        "lang_label": "Langue anglais",
+        "history_button": "Supprimer l'historique des chaînes anglais",
+        "movies_button": "Réinitialiser la progression des films anglais",
+        "series_button": "Réinitialiser la progression des séries anglais",
+        "favorites_button": "Supprimer les favoris anglais",
+        "logout_button": "Se déconnecter anglais",
+        "confirm_label": "Êtes-vous sur ? anglais",
+        "yes_label": "ouie",
+        "no_label": "none",
+
+        "day_label": "jour anglais",
+        "days_label": "jours anglais",
+        "hour_label": "heure anglais",
+        "hours_label": "heures anglais",
+        "minute_label": "minute anglais",
+        "minutes_label": "minutes anglais"
+      },
+      "earn": {
+        "title": "Faîtes profiter vos proches de -30% sur leur abonnement en",
+        "subtitle": "Gagnez des récompenses sur chaque invitation en",
+        "share_label": "Partagez en",
+        "or_label": "ou en",
+        "code_label": "Code de réduction en",
+        "qrcode_label": "QRCode de réduction en",
+        "link_rewards": "Pour voir et utiliser vos récompoenses, rendez-vous sur myiptv.com/aff en"
+      }
+    }
+  }
+}
