@@ -675,3 +675,36 @@ const styles = StyleSheet.create({
 });
 
 export default Login;
+
+
+
+// import React, { useEffect, useState } from 'react';
+// import { View, Text } from 'react-native';
+// import { NativeModules } from 'react-native';
+
+// const { NetworkModule } = NativeModules;
+
+// const App = () => {
+//   const [macAddress, setMacAddress] = useState('Fetching...');
+
+//   useEffect(() => {
+//     const fetchMacAddress = async () => {
+//       try {
+//         const address = await NetworkModule.getEthernetMacAddress();
+//         setMacAddress(address);
+//       } catch (error) {
+//         console.error(error);
+//         setMacAddress('Error getting MAC address');
+//       }
+//     };
+//     fetchMacAddress();
+//   }, []);
+
+//   return (
+//     <View>
+//       <Text>Ethernet MAC Address: {macAddress}</Text>
+//     </View>
+//   );
+// };
+
+// export default App;
