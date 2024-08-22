@@ -72,29 +72,55 @@ const VideoPlayer = ({
     lastSaveAPIPosition.current = null;
   }, [path]);
 
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     if (isControlsVisible && !isNextButtonVisible && Platform.isTV)
+  //       setIsControlsVisible(false);
+  //     else if (statusRef.current)
+  //       backFromPlayer(
+  //         lastSaveAPIPosition.current,
+  //         statusRef.current.seekableDuration,
+  //       );
+  //     else backFromPlayer(null, null);
+  //     return true;
+  //   };
+
+  //   const canInit = true;
+
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     canInit ? backAction : () => null,
+  //   );
+
+  //   return () => backHandler.remove();
+  // }, [isControlsVisible, isNextButtonVisible]);
+
+  // ************************************
+
   useEffect(() => {
     const backAction = () => {
-      if (isControlsVisible && !isNextButtonVisible && Platform.isTV)
-        setIsControlsVisible(false);
-      else if (statusRef.current)
+      // Handle your custom back button action here
+      if (statusRef.current) {
         backFromPlayer(
           lastSaveAPIPosition.current,
-          statusRef.current.seekableDuration,
+          statusRef.current.seekableDuration
         );
-      else backFromPlayer(null, null);
-      return true;
+      } else {
+        backFromPlayer(null, null);
+      }
+      return true; // Prevent default behavior
     };
-
-    const canInit = true;
 
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
-      canInit ? backAction : () => null,
+      backAction
     );
 
     return () => backHandler.remove();
-  }, [isControlsVisible, isNextButtonVisible]);
+  }, [statusRef, backFromPlayer, lastSaveAPIPosition]);
 
+
+  // ************************************
   useEffect(() => {
     sharedOpacityBackground.value = 1;
   }, []);
@@ -309,7 +335,7 @@ const VideoPlayer = ({
             <ActivityIndicator size="large" color={`white`} />
           </View>
         ) : null}
-        {Platform.isTV ? (
+        {/* {Platform.isTV ? (
           <Video
             source={{
               uri: path,
@@ -327,6 +353,7 @@ const VideoPlayer = ({
             paused={!isPlayerPlaying}
             onSeek={e => console.log(e)}
             onReadyForDisplay={() => console.log('Ready')}
+            onPlaybackStalled={true}
             bufferConfig={{
               minBufferMs: 15000,
               maxBufferMs: 50000,
@@ -336,23 +363,23 @@ const VideoPlayer = ({
             progressUpdateInterval={250}
             onEnd={() => (isNextButtonVisible ? null : _handleNextEpisode())}
           />
-        ) : (
+        ) : ( */}
           <VideoPlayerMobile
             disableFullscreen
             source={{
               uri: path,
               type: ext,
             }}
-            ref={ref => (videoRef.current = ref)}
-            onBuffer={e => setIsBuffering(e.isBuffering)}
-            onError={err => console.log(err)}
+            ref={(ref) => (videoRef.current = ref)}
+            onBuffer={(e) => setIsBuffering(e.isBuffering)}
+            onError={(err) => console.log(err)}
             onLoad={() => handleOnLoadVideo()}
             style={styles.backgroundVideo}
-            onProgress={e => handleVideoStatus(e)}
+            onProgress={(e) => handleVideoStatus(e)}
             resizeMode="contain"
             useTextureView={false}
             paused={!isPlayerPlaying}
-            onSeek={e => console.log(e)}
+            onSeek={(e) => console.log(e)}
             onReadyForDisplay={() => console.log('Ready')}
             bufferConfig={{
               minBufferMs: 15000,
@@ -369,12 +396,12 @@ const VideoPlayer = ({
               statusRef.current
                 ? backFromPlayer(
                     lastSaveAPIPosition.current,
-                    statusRef.current.seekableDuration,
+                    statusRef.current.seekableDuration
                   )
                 : backFromPlayer(null, null)
             }
           />
-        )}
+        {/* )} */}
 
         {isError ? (
           <View

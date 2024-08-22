@@ -388,6 +388,7 @@ const Settings = ({componentFocused, setComponentFocused}) => {
                     marginRight: 3,
                   }}>
                   {appInfos.lang[language].data.settings.username_label} :
+                  {/* MAC Address : */}
                 </Text>
                 <Text
                   style={{

@@ -10,20 +10,22 @@ import {
   findNodeHandle,
   BackHandler,
   Dimensions,
-  TouchableOpacity,
   Modal,
   Image,
   ActivityIndicator,
+  TouchableOpacity,
+  Animated,
 } from 'react-native';
 import {AuthContext} from '../global/context';
 import TVEventHandler from '../tools/TVEventHandler';
 import {SvgUri} from 'react-native-svg';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+// import Animated, {
+//   Easing,
+//   log,
+//   useAnimatedStyle,
+//   useSharedValue,
+//   withTiming,
+// } from 'react-native-reanimated';
 import Logo from '../components/Logo';
 import CustomTextInput from '../components/utils/CustomTextInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,15 +33,91 @@ import DeviceInfo from 'react-native-device-info';
 import * as Progress from 'react-native-progress';
 
 import bg from '../../android/app/src/main/res/drawable/logo.png';
-
+import { NativeModules } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { ToastProvider } from 'react-native-toast-notifications'
+import { useToast } from "react-native-toast-notifications";
+import ToastMessage from "./toast";
+import { log } from 'react-native-reanimated';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
+const { NetworkModule } = NativeModules;
+
 
 const Login = () => {
+
   const [modalVisible, setModalVisible] = useState(false);
+  const [activation, setActivation] = useState(0);
   const userRef = useRef(null);
   const passwordRef = useRef(null);
+  const [macAddressEthernet, setMacAddressEthernet] = useState('Fetching...');
+  const [toastVisible, setToastVisible] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [firstEffectCompleted, setFirstEffectCompleted] = useState(false);
+  const [is_virtual, setVirtual] = useState(false);
+
+  const showToast = () => {
+    setToastVisible(true);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      setTimeout(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }).start(() => {
+          setToastVisible(false);
+        });
+      }, 1000);
+    });
+  };
+
+  useEffect(() => {
+    const fetchMacAddress = async () => {
+      try {
+        const address = await NetworkModule.getEthernetMacAddress();
+        if ("Not able to read" === address)
+        {
+          setVirtual(true);
+          const tmp_helper = DeviceInfo.getUniqueIdSync();
+          let firstSixCharacters = tmp_helper.slice(0, 6);
+
+          firstSixCharacters = firstSixCharacters.split('');
+          firstSixCharacters[1] = firstSixCharacters[1].toUpperCase();
+          firstSixCharacters[3] = firstSixCharacters[3].toUpperCase();
+          firstSixCharacters = firstSixCharacters.join('');
+
+          let formattedString = `${firstSixCharacters[0]}${firstSixCharacters[1]}:${firstSixCharacters[2]}${firstSixCharacters[3]}:${firstSixCharacters[4]}${firstSixCharacters[5]}`;
+
+          // let formattedString0 = `${firstSixCharacters[0]}${firstSixCharacters[1]}:`;
+          // let formattedString1 = `${firstSixCharacters[2]}${firstSixCharacters[3]}:`;
+          // let formattedString2 = `${firstSixCharacters[4]}${firstSixCharacters[5]}`;
+          // let all_in = formattedString0 + formattedString1 + formattedString2;
+          let virtualMac = "90:00:EB:" + formattedString;
+          // let virtualMac = "90:00:EB:11:44:A4";
+          console.log(virtualMac);
+          // console.log(all_in);
+          setMacAddressEthernet(virtualMac);
+        }
+        else
+          setMacAddressEthernet(address);
+      } catch (error) {
+        console.error(error);
+        setMacAddressEthernet('Error getting MAC address');
+      }
+    };
+    fetchMacAddress();
+    const timer = setTimeout(() => {
+      console.log('First useEffect completed');
+      setFirstEffectCompleted(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const getUniqueIdSync = DeviceInfo.getUniqueIdSync();
   const getDeviceId = DeviceInfo.getDeviceId();
@@ -50,20 +128,20 @@ const Login = () => {
   const getApiLevelSync = DeviceInfo.getApiLevelSync();
   const getMacAddressSync = DeviceInfo.getMacAddressSync();
   const getVersion = DeviceInfo.getSystemVersion();
-
+  
+  // { label: "MAC Add Ethernet", value: getMacAddressSync },
   const deviceInfo = [
+    { label: is_virtual ? "MAC Add virtual" : "MAC Add", value: macAddressEthernet },
+    { label: "Unique ID", value: getUniqueIdSync },
+
     { label: "Device Type", value: getDeviceType },
     { label: "Device ID", value: getDeviceId },
     { label: "Brand", value: getBrand },
-
     { label: "System Name", value: getSystemName },
-    { label: "Unique ID", value: getUniqueIdSync },
     { label: "Model", value: getModel },
     { label: "API Level", value: getApiLevelSync },
-    { label: "MAC Address", value: getMacAddressSync },
     { label: "Android Version", value: getVersion },
   ];
-
 
 
   const deviceInfos = {
@@ -76,29 +154,279 @@ const Login = () => {
     apiLevel: getApiLevelSync,
     macAddress: getMacAddressSync,
     systemVersion: getVersion,
+    macAddress_Ethernet: macAddressEthernet,
+  };
+
+  const ActiveInfo = {
+    username: macAddressEthernet,
+    password: getUniqueIdSync,
+    // type: "activation",
+  };
+
+  const ActiveInfoR = {
+    username: macAddressEthernet,
+    password: getUniqueIdSync,
+    type: "activation",
   };
 
 
-  useEffect(() => {
-    const sendDeviceInfo = async () => {
-      try {
-        // const response = await fetch('https://mac.nejmatv.xyz/', {
-          const response = await fetch(process.env.REACT_APP_PATH_LOGIN, {
-          method: 'POST',
+  const AuthInfo = {
+    username: macAddressEthernet,
+    password: getUniqueIdSync,
+    type: "auth",
+  };
+
+  // Assuming AuthInfo is an object like { username: '198500', password: '1985002024' }
+
+  // const AuthInfo = {
+  //   username: '198500',
+  //   password: '1985002024'
+  // };
+
+  const resetInfo = {
+    username: macAddressEthernet,
+    password: getUniqueIdSync,
+    type: "reset",
+  };
+
+
+
+  // useEffect(() => {
+  //   const sendDeviceInfo = async () => {
+  //     try {
+  //       // const response = await fetch('https://mac.nejmatv.xyz/', {
+  //         const response = await fetch(process.env.REACT_APP_PATH_LOGIN, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify(deviceInfos),
+  //       });
+  //       const data = await response.json();
+  //       console.log('Server response:', data);
+  //     } catch (error) {
+  //       console.error('Error sending device info:', error.message);
+  //     }
+  //   };
+  
+  //   sendDeviceInfo();
+  // }, []);
+
+
+
+  // const sendActiveInfo = async () => {
+  //   try {
+  //     const response = await fetch(process.env.REACT_APP_PATH_LOGIN, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(ActiveInfo),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error(`Network response was not ok: ${response.statusText}`);
+  //     }
+  
+  //     const data = await response.json();
+  //     console.log('Server response:', data);
+  
+  //     // Uncomment the next line to update activation state after a successful request
+  //     setActivation(2);
+  //   } catch (error) {
+  //     setToastVisible(true);
+
+  //     setTimeout(() => {
+  //       setToastVisible(false);
+  //     }, 1500);
+  //     console.log("you need a subscription");
+  //     // console.error('Error sending device info:', error.message);
+  //     // if (error.message === 'Network request failed') {
+  //     //   console.error('Possible reasons: network connectivity issues, incorrect endpoint URL, CORS issues, etc.');
+  //     // }
+  //   }
+  // };
+
+    const requesTactivatioN = async () => {
+    try {
+      const response = await fetch(process.env.REACT_APP_PATH_LOGIN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ActiveInfo),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      console.log('Server response:', data);
+  
+    } catch (error) {
+      console.log("you need a subscription");
+    }
+  };
+
+
+  const sendActiveInfo = async () => {
+    try {
+
+      const queryParams = new URLSearchParams(ActiveInfoR).toString();
+        const url = `${process.env.REACT_APP_PATH_LOGIN}?${queryParams}`;
+    
+        const response = await fetch(url, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(deviceInfos),
         });
+
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+
+      const data = await response.json();
+      console.log('Server response:', data);
+
+      if (data.status === 200)
+      {
+        console.log("naaadi >> ", data.status);
+        setActivation(2);
+      }
+      else{
+        setActivation(1);
+        showToast();
+        console.log("probleme >> ", data.status);
+      }
+
+      // Uncomment the next line to update activation state after a successful request
+      // setActivation(2);
+    } catch (error) {
+      console.log("you need a subscription");
+      showToast();
+      // console.error('Error sending device info:', error.message);
+      // if (error.message === 'Network request failed') {
+      //   console.error('Possible reasons: network connectivity issues, incorrect endpoint URL, CORS issues, etc.');
+      // showToast();
+    }
+  }
+  
+  // const sendAuthInfo = async () => {
+  //   try {
+  //     const response = await fetch(process.env.REACT_APP_PATH_LOGIN, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(AuthInfo),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error(`Network response was not ok: ${response.statusText}`);
+  //     }
+  
+  //     const data = await response.json();
+  //     console.log('>>>> Server response:', data);
+  
+
+  //   } catch (error) {
+      // console.error('Error sending device info:', error.message);
+      // if (error.message === 'Network request failed') {
+      //   console.error('Possible reasons: network connectivity issues, incorrect endpoint URL, CORS issues, etc.');
+
+  //     }
+
+  //   }
+  // };
+  
+
+  const sendAuthInfo = async () => {
+    try {
+      // Assuming AuthInfo is an object like { username: '198500', password: '1985002024' }
+      console.log("qa      ",AuthInfo.username);
+      const removeColons = (str) => str.replace(/:/g, '');
+      const processedMacAddress = removeColons(AuthInfo.username);
+
+      AuthInfo.username = processedMacAddress
+
+      console.log("last      ",AuthInfo.username);
+      
+      const queryParams = new URLSearchParams(AuthInfo).toString();
+      const url = `${process.env.REACT_APP_PATH_LOGIN}?${queryParams}`;
+  
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      console.log('>>>> Server response:', data);
+  
+    } catch (error) {
+      console.error('Error sending device info:', error.message);
+      if (error.message === 'Network request failed') {
+        console.error('Possible reasons: network connectivity issues, incorrect endpoint URL, CORS issues, etc.');
+      }
+    }
+  };
+
+  useEffect(() => {
+
+    if (firstEffectCompleted) {
+    const sendAuthInfoa = async () => {
+      try {
+        // Assuming AuthInfo is an object like { username: '198500', password: '1985002024' }
+        // fetchMacAddress()
+        const queryParams = new URLSearchParams(AuthInfo).toString();
+        const url = `${process.env.REACT_APP_PATH_LOGIN}?${queryParams}`;
+    
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+    
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+    
         const data = await response.json();
-        console.log('Server response:', data);
+        console.log('>>>><<<<< Server response:', data);
+        console.log(data.status);
+        if (data.status === 200)
+        {
+          console.log("naaadi");
+          setActivation(2);
+        }
+        else{
+          setActivation(1);
+        }
+        
+        
       } catch (error) {
-        console.error('Error sending device info:', error.message);
+        setActivation(1);
+        console.log("nooooooo");
+        // console.error('Error sending device info:', error.message);
+        // if (error.message === 'Network request failed') {
+        //   console.error('Possible reasons: network connectivity issues, incorrect endpoint URL, CORS issues, etc.');
+        // }
       }
     };
+
+    sendAuthInfoa();}
+  },[firstEffectCompleted]);
   
-    sendDeviceInfo();
-  }, []);
+
+
   
 
   const {handleLogin, language, appInfos, isSendingRequest} =
@@ -118,10 +446,10 @@ const Login = () => {
     }
   }, []);
 
-  useEffect(() => {
-    // getLastIDs();
-    getDeviceInfoAndLogin(); // Call the function to get device info and login
-  }, []);
+  // useEffect(() => {
+  //   // getLastIDs();
+  //   getDeviceInfoAndLogin(); // Call the function to get device info and login
+  // }, []);
 
   const getLastIDs = async () => {
     const values = await AsyncStorage.getItem('lastIds');
@@ -136,34 +464,48 @@ const Login = () => {
     }
   };
 
+  function removeColons(str) {
+    return str.replace(/:/g, '');
+  }
+
   const getDeviceInfoAndLogin = async () => {
-    const macAddress = getMacAddressSync;
+    // sendAuthInfo();
+    const macAddressf = macAddressEthernet;
     const uniqueId = getUniqueIdSync;
-    setUserValue(macAddress);
+
+    const removeColons = (str) => str.replace(/:/g, '');
+    const processedMacAddress = removeColons(macAddressf);
+    
+
+    setUserValue(processedMacAddress);
     setPasswordValue(uniqueId);
-    handleLogin(macAddress, uniqueId);
+    handleLogin(macAddressf, uniqueId);
+    // Assuming AuthInfo is an object like { username: '198500', password: '1985002024' }
+    // handleLogin("198500", "1985002024");
+    // 900EB3  900EB37A9DF9
+    
   };
 
-  const timeoutErrorMessagePoping = useRef(null);
-  useEffect(() => {
-    clearTimeout(timeoutErrorMessagePoping.current);
-    if (isSendingRequest === false) sharedErrorMessageOpacity.value = 1;
-    timeoutErrorMessagePoping.current = setTimeout(() => {
-      sharedErrorMessageOpacity.value = 0;
-    }, 6000);
-    return () => clearTimeout(timeoutErrorMessagePoping);
-  }, [isSendingRequest]);
+  // const timeoutErrorMessagePoping = useRef(null);
+  // useEffect(() => {
+  //   clearTimeout(timeoutErrorMessagePoping.current);
+  //   if (isSendingRequest === false) sharedErrorMessageOpacity.value = 1;
+  //   timeoutErrorMessagePoping.current = setTimeout(() => {
+  //     sharedErrorMessageOpacity.value = 0;
+  //   }, 6000);
+  //   return () => clearTimeout(timeoutErrorMessagePoping);
+  // }, [isSendingRequest]);
 
-  const sharedErrorMessageOpacity = useSharedValue(0);
-  const animatedErrorMessage = useAnimatedStyle(() => {
-    return {
-      opacity: withTiming(sharedErrorMessageOpacity.value, {
-        duration: 400,
-        easing: Easing.bezier(0.3, 1, 0.3, 1),
-        useNativeDriver: true,
-      }),
-    };
-  });
+  // const sharedErrorMessageOpacity = useSharedValue(0);
+  // const animatedErrorMessage = useAnimatedStyle(() => {
+  //   return {
+  //     opacity: withTiming(sharedErrorMessageOpacity.value, {
+  //       duration: 400,
+  //       easing: Easing.bezier(0.3, 1, 0.3, 1),
+  //       useNativeDriver: true,
+  //     }),
+  //   };
+  // });
 
   useEffect(() => {
     const backAction = () => {
@@ -233,6 +575,7 @@ const Login = () => {
 
     return () => _disableTVEventHandler();
   });
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -324,6 +667,7 @@ const Login = () => {
                 />
               </View>
             </View>
+            
             <CustomTextInput
               containerStyle={[
                 styles.inputContainer,
@@ -482,7 +826,7 @@ const Login = () => {
                 }}>
                 <Animated.Text
                   style={[
-                    animatedErrorMessage,
+                    // animatedErrorMessage,
                     {
                       fontFamily: 'Inter-SemiBold',
                       color: `rgb(${appInfos.colors.tertiary})`,
@@ -498,67 +842,115 @@ const Login = () => {
       </View>
 
       {/* Black View to hide the existing front */}
-      <View
-        style={{
-          flex: 1,
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'black',
-          zIndex: 10,
-          justifyContent: 'center',
-        }}
-      >
-        <SafeAreaView style={[styles.container]}>
-          <View style={styles.loadingContainer}>
-            <Image
-              source={bg}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            <Progress.Circle
-              indeterminate={true}
-              endAngle={0.7}
-              color='#eeeee4'
-              borderWidth={4}
-              size={40}
-            />
-            {/* <Text style={styles.loadingText}>Loading ...</Text> */}
-          </View>
 
-          {/* Icon button */}
-          <View style={styles.rightBottomContainer}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => setModalVisible(true)}>
-              <Text style={styles.icon}>i</Text>
-            </TouchableOpacity>
-          </View>
+        <View
+          style={{
+            flex: 1,
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'black',
+            zIndex: 10,
+            justifyContent: 'center',
+          }}
+        >
+          <SafeAreaView style={[styles.container]}>
+            <View style={styles.loadingContainer}>
+              <Image
+                source={bg}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              
+              {
+                activation === 0
+                  &&
+                <Progress.Circle
+                  indeterminate={true}
+                  endAngle={0.7}
+                  color='#eeeee4'
+                  borderWidth={4}
+                  size={40}
+                  />
+              }
+              {
+                activation === 1 
+                  &&
+                  <TouchableOpacity style={styles.button} onPress={() => { sendActiveInfo() }}>
+                    <Text style={styles.buttonText}>Activate</Text>
+                  </TouchableOpacity>
 
-          {/* Modal */}
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(!modalVisible)}
-          >
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Text style={styles.modalTitle}>Device Information</Text>
-                <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                  {deviceInfo.map((info, index) => (
-                    <View key={index} style={styles.deviceInfoContainer}>
-                      <Text style={styles.deviceInfoLabel}>{info.label}</Text>
-                      <Text style={styles.deviceInfoValue}>{info.value}</Text>
-                    </View>
-                  ))}
-                </ScrollView>
-                <TouchableOpacity onPress={() => setModalVisible(!modalVisible)} style={styles.buttonClose}>
-                  <Text style={styles.textStyle}>Close</Text>
+              }
+              {
+                activation === 2
+                  &&
+                  <TouchableOpacity style={styles.button_auth} onPress={() => { getDeviceInfoAndLogin();}}>
+                    <Text style={styles.buttonText}>Start</Text>
+                  </TouchableOpacity>
+              }
+              
+              {/* 
+                <Text style={styles.loadingText}>Loading ...</Text>
+              */}
+            </View>
+
+            {/* Icon button */}
+            <View style={styles.rightBottomContainer}>
+              <TouchableOpacity style={styles.iconButton} onPress={() => setModalVisible(true)}>
+                <Text style={styles.icon}>i</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* {
+              toastVisible 
+              
+                &&
+
+              <View style={styles.toast_in}>
+                <TouchableOpacity style={styles.iconButtonToast}>
+                  <Text style={styles.icon}>An error occurred. Please try again. or ask admin</Text>
                 </TouchableOpacity>
               </View>
-            </View>
-          </Modal>
-        </SafeAreaView>
-      </View>
+            }
+             */}
+
+          {toastVisible && (
+            <Animated.View style={[styles.toast_in, { opacity: fadeAnim }]}>
+              <TouchableOpacity style={styles.iconButtonToast}>
+                <Text style={styles.icon}>An error occurred. Please try again. or ask admin</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+
+            {/* <ToastMessage /> */}
+
+
+            {/* Modal */}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => setModalVisible(!modalVisible)}
+            >
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={styles.modalTitle}>Device Information</Text>
+                  <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                    {deviceInfo.map((info, index) => (
+                      <View key={index} style={styles.deviceInfoContainer}>
+                        <Text style={styles.deviceInfoLabel}>{info.label}</Text>
+                        <Text style={styles.deviceInfoValue}>{info.value}</Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                  <TouchableOpacity onPress={() => setModalVisible(!modalVisible)} style={styles.buttonClose}>
+                    <Text style={styles.textStyle}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          </SafeAreaView>
+        </View>
     </View>
   );
 };
@@ -571,7 +963,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 100, // Adjust width and height as needed
-    height: 100,
+    height: 70,
+    marginBottom:15
   },
   centeredContainer: {
     position: 'absolute',
@@ -581,15 +974,29 @@ const styles = StyleSheet.create({
 
   rightBottomContainer: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
+    bottom: '5%',
+    right: '5%',
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
+  },
+  toast_in: {
+    
+    position: 'absolute',
+    // top: '-100%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    height:50,
+    width:'100%'
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loadingbtn: {
+    flexDirection:'row',
+    gap:30,
+    
   },
   loadingText: {
     marginTop: 10,
@@ -606,6 +1013,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     right: 10,
+  },
+  iconButtonToast: {
+    backgroundColor: 'red',
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    // bottom: 10,
+    // top: '0%',
+    // right: 10,
+    padding:7,
   },
   icon: {
     color: 'white',
@@ -672,6 +1090,24 @@ const styles = StyleSheet.create({
     color: 'black',
     width: '60%',
   },
+  button: {
+    padding: 10,
+    backgroundColor: '#AAA',
+    borderRadius: 5,
+    alignItems: 'center',
+    width:'15%',
+  },
+  button_auth:{
+    padding: 10,
+    backgroundColor: '#1e81b0',
+    borderRadius: 5,
+    alignItems: 'center',
+    width:'15%',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
 });
 
 export default Login;
@@ -685,20 +1121,20 @@ export default Login;
 // const { NetworkModule } = NativeModules;
 
 // const App = () => {
-//   const [macAddress, setMacAddress] = useState('Fetching...');
+  // const [macAddress, setMacAddress] = useState('Fetching...');
 
-//   useEffect(() => {
-//     const fetchMacAddress = async () => {
-//       try {
-//         const address = await NetworkModule.getEthernetMacAddress();
-//         setMacAddress(address);
-//       } catch (error) {
-//         console.error(error);
-//         setMacAddress('Error getting MAC address');
-//       }
-//     };
-//     fetchMacAddress();
-//   }, []);
+  // useEffect(() => {
+  //   const fetchMacAddress = async () => {
+  //     try {
+  //       const address = await NetworkModule.getEthernetMacAddress();
+  //       setMacAddress(address);
+  //     } catch (error) {
+  //       console.error(error);
+  //       setMacAddress('Error getting MAC address');
+  //     }
+  //   };
+  //   fetchMacAddress();
+  // }, []);
 
 //   return (
 //     <View>
