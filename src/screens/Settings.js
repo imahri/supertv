@@ -400,7 +400,7 @@ const Settings = ({componentFocused, setComponentFocused}) => {
                   {userInfos.username}
                 </Text>
               </View>
-              <View style={{flexDirection: 'row'}}>
+              {/* <View style={{flexDirection: 'row'}}>
                 <Text
                   style={{
                     fontFamily: 'Inter-SemiBold',
@@ -421,7 +421,7 @@ const Settings = ({componentFocused, setComponentFocused}) => {
                   }}>
                   {expDate}
                 </Text>
-              </View>
+              </View> */}
               <View style={{flexDirection: 'row'}}>
                 <Text
                   style={{

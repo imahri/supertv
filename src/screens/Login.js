@@ -419,10 +419,6 @@ const Login = () => {
       } catch (error) {
         // setActivation(1);
         console.log("nooooooo");
-        // console.error('Error sending device info:', error.message);
-        // if (error.message === 'Network request failed') {
-        //   console.error('Possible reasons: network connectivity issues, incorrect endpoint URL, CORS issues, etc.');
-        // }
       }
     };
 
@@ -441,7 +437,8 @@ const Login = () => {
     // const [passwordValue, setPasswordValue] = useState('B5MyVzD1as');
     // const [userValue, setUserValue] = useState('canyk0Q6JR');
 
-  const [focused, setFocused] = useState(0);
+  // const [focused, setFocused] = useState(0);
+  const [focused, setFocused] = useState(2); 
   const [isKeyboardOpened, setIsKeyboardOpened] = useState(false);
   const fakeTouchable = useRef(null);
   const onRef = useCallback(ref => {

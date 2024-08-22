@@ -96,7 +96,7 @@ android {
 
     namespace "com.myapp"
     defaultConfig {
-        applicationId 'com.myappsuper'
+        applicationId 'com.beeonemax'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
