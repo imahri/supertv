@@ -460,8 +460,8 @@ const styles = StyleSheet.create({
   logo: {
     position: 'absolute',
     alignSelf:'center',
-    width:80,
-    height:100,
+    height:50,
+    marginTop:25,
   },
   absolute: {
     position: 'absolute',
