@@ -180,7 +180,8 @@ const Login = () => {
 
   // const AuthInfo = {
   //   username: '198500',
-  //   password: '1985002024'
+  //   password: '1985002024',
+  //   type: "auth",
   // };
 
   const resetInfo = {
@@ -342,17 +343,9 @@ const Login = () => {
   // };
   
 
-  const sendAuthInfo = async () => {
+  const sendAuthInfoa = async () => {
+  
     try {
-      // Assuming AuthInfo is an object like { username: '198500', password: '1985002024' }
-      console.log("qa      ",AuthInfo.username);
-      const removeColons = (str) => str.replace(/:/g, '');
-      const processedMacAddress = removeColons(AuthInfo.username);
-
-      AuthInfo.username = processedMacAddress
-
-      console.log("last      ",AuthInfo.username);
-      
       const queryParams = new URLSearchParams(AuthInfo).toString();
       const url = `${process.env.REACT_APP_PATH_LOGIN}?${queryParams}`;
   
@@ -368,13 +361,24 @@ const Login = () => {
       }
   
       const data = await response.json();
-      console.log('>>>> Server response:', data);
-  
-    } catch (error) {
-      console.error('Error sending device info:', error.message);
-      if (error.message === 'Network request failed') {
-        console.error('Possible reasons: network connectivity issues, incorrect endpoint URL, CORS issues, etc.');
+      console.log('>>>><<<<< Server response:', data);
+      console.log(data.status);
+      if (data.status === 200)
+      {
+        console.log("naaadiqwerty");
+        return ;
       }
+      else{
+        setActivation(0);
+        showToast();
+        setTimeout(() => {
+          setActivation(2);
+        }, 2000);
+      }
+      
+    } catch (error) {
+      // setActivation(1);
+      console.log("nooooooo");
     }
   };
 
@@ -402,18 +406,18 @@ const Login = () => {
         const data = await response.json();
         console.log('>>>><<<<< Server response:', data);
         console.log(data.status);
-        if (data.status === 200)
-        {
-          console.log("naaadi");
+        // if (data.status === 200)
+        // {
+        //   console.log("naaadi");
+        //   setActivation(2);
+        // }
+        // else{
           setActivation(2);
-        }
-        else{
-          setActivation(1);
-        }
+        // }
         
         
       } catch (error) {
-        setActivation(1);
+        // setActivation(1);
         console.log("nooooooo");
         // console.error('Error sending device info:', error.message);
         // if (error.message === 'Network request failed') {
@@ -469,7 +473,7 @@ const Login = () => {
   }
 
   const getDeviceInfoAndLogin = async () => {
-    // sendAuthInfo();
+    sendAuthInfoa();
     const macAddressf = macAddressEthernet;
     const uniqueId = getUniqueIdSync;
 
@@ -479,9 +483,9 @@ const Login = () => {
 
     setUserValue(processedMacAddress);
     setPasswordValue(uniqueId);
-    handleLogin(macAddressf, uniqueId);
+    // handleLogin(macAddressf, uniqueId);
     // Assuming AuthInfo is an object like { username: '198500', password: '1985002024' }
-    // handleLogin("198500", "1985002024");
+    handleLogin("198500", "1985002024");
     // 900EB3  900EB37A9DF9
     
   };

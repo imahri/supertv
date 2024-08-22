@@ -13,10 +13,11 @@ import {
   ScrollView,
   BackHandler,
   Platform,
+  Image,
 } from 'react-native';
 
 import TVEventHandler from '../tools/TVEventHandler';
-
+import bg from '../../android/app/src/main/res/drawable/logo.png';
 import HomeSVG from '../assets/icons/home.svg';
 import MoviesSVG from '../assets/icons/movies.svg';
 import TvSVG from '../assets/icons/tv.svg';
@@ -323,6 +324,12 @@ const Menu = ({
           // backgroundColor: 'red',
         }}>
         <View style={{flex:1}}>
+        <Image
+            source={bg}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+
           {(activeMenu === 'Home' ||
             activeMenu === 'Settings' ||
             activeMenu === 'Gain' ||
@@ -452,8 +459,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: 'absolute',
-    left: 24,
-    top: 0,
+    alignSelf:'center',
+    width:80,
+    height:100,
   },
   absolute: {
     position: 'absolute',

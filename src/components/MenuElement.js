@@ -2,7 +2,7 @@ import React, {
   memo,
   useEffect,
 } from 'react';
-import {View, StyleSheet, Platform, PixelRatio} from 'react-native';
+import {View, StyleSheet, Platform, Text, PixelRatio} from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -75,9 +75,10 @@ const MenuElement = ({
           accessible={false}
           style={[
             styles.title,
+            
             Platform.isTV ? animatedText : null,
             {
-              fontSize:Platform.isTV ? 15 : 14,
+              fontSize:Platform.isTV ? 25 : 20,
               color:
                 status === 'focus' && item.id === 'Gain'
                   ? `rgb(${colors.secondary})`
@@ -92,6 +93,7 @@ const MenuElement = ({
                   ? 'Inter-ExtraBold'
                   : 'Inter-Medium',
               marginLeft: item.id === 'Gain' ? -0.2 : 1,
+              fontWeight: "800"
             },
           ]}>
           {item.name}
@@ -132,3 +134,4 @@ const styles = StyleSheet.create({
 });
 
 export default memo(MenuElement);
+
